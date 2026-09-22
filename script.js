@@ -73,6 +73,31 @@ function escapeHtml(str){
   return div.innerHTML;
 }
 
+/* Mobile detection utility */
+function isMobile(){
+  return window.innerWidth <= 780;
+}
+function isTouchDevice(){
+  return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+}
+
+/* Prevent 300ms click delay on touch devices */
+function addTouchListener(element, callback){
+  if(isTouchDevice()){
+    let touchStart = false;
+    element.addEventListener("touchstart", ()=>{ touchStart = true; }, {passive: true});
+    element.addEventListener("touchend", (e)=>{ 
+      if(touchStart){
+        e.preventDefault();
+        callback(e);
+      }
+      touchStart = false;
+    }, {passive: false});
+  } else {
+    element.addEventListener("click", callback);
+  }
+}
+
 /* ---------------------------------------------------------
    3. DATA LOADING + PERSISTENCE MERGE
 --------------------------------------------------------- */
@@ -463,14 +488,48 @@ function initNavbar(){
   const hamburger = document.getElementById("hamburger");
   const navMenu = document.getElementById("navMenu");
 
+  // Set navbar height as CSS variable for mobile menu positioning
+  function updateNavbarHeight(){
+    const height = navbar.offsetHeight;
+    document.documentElement.style.setProperty('--navbar-height', height + 'px');
+  }
+  updateNavbarHeight();
+  window.addEventListener('resize', updateNavbarHeight);
+
   window.addEventListener("scroll", ()=>{
     navbar.classList.toggle("scrolled", window.scrollY > 10);
     toggleScrollTopButton();
   });
 
-  hamburger.addEventListener("click", ()=>{
+  // Handle touch events for mobile - prevent double-toggle with click
+  let touchHandled = false;
+  hamburger.addEventListener("touchend", (e)=>{
+    e.preventDefault();
+    touchHandled = true;
     const open = navMenu.classList.toggle("open");
     hamburger.setAttribute("aria-expanded", String(open));
+    updateNavbarHeight();
+  }, {passive: false});
+
+  hamburger.addEventListener("click", (e)=>{
+    if(touchHandled){
+      touchHandled = false;
+      return;
+    }
+    const open = navMenu.classList.toggle("open");
+    hamburger.setAttribute("aria-expanded", String(open));
+    updateNavbarHeight();
+    e.stopPropagation();
+  });
+
+  // Close mobile menu when clicking outside
+  document.addEventListener("click", (e)=>{
+    if(navMenu.classList.contains("open") && 
+       !navMenu.contains(e.target) && 
+       !hamburger.contains(e.target)){
+      navMenu.classList.remove("open");
+      hamburger.setAttribute("aria-expanded", "false");
+    }
   });
 
   const sectionMap = {
@@ -880,6 +939,13 @@ function attachTaskCardEvents(container){
     card.querySelector('[data-action="duplicate"]').addEventListener("click", ()=> duplicateTask(id));
     card.querySelector('[data-action="delete"]').addEventListener("click", ()=> deleteTask(id));
     card.querySelector('[data-action="reschedule"]').addEventListener("click", ()=> openRescheduleModal(id));
+    
+    // Add touch feedback for mobile
+    if(isTouchDevice()){
+      card.addEventListener("touchstart", ()=> card.style.transform = "scale(0.98)", {passive: true});
+      card.addEventListener("touchend", ()=> card.style.transform = "", {passive: true});
+      card.addEventListener("touchcancel", ()=> card.style.transform = "", {passive: true});
+    }
   });
 }
 
@@ -1408,7 +1474,13 @@ function renderSearchResults(query){
 /* ---------------------------------------------------------
    25. MODALS (generic open/close)
 --------------------------------------------------------- */
-function openModal(id){ document.getElementById(id).classList.add("open"); }
+function openModal(id){ 
+  const overlay = document.getElementById(id);
+  overlay.classList.add("open");
+  // Focus trap for accessibility
+  const focusable = overlay.querySelector('button, input, select, textarea, [href]');
+  if(focusable) focusable.focus();
+}
 function closeModal(id){ document.getElementById(id).classList.remove("open"); }
 function closeAllModals(){
   document.querySelectorAll(".modal-overlay").forEach(m=>m.classList.remove("open"));
@@ -1418,6 +1490,11 @@ function initModalDismiss(){
     overlay.addEventListener("click", (e)=>{ if(e.target === overlay) overlay.classList.remove("open"); });
   });
   document.getElementById("certModalClose").addEventListener("click", ()=>closeModal("certModalOverlay"));
+  
+  // Close modals on Escape key
+  document.addEventListener("keydown", (e)=>{
+    if(e.key === "Escape") closeAllModals();
+  });
 }
 
 /* ---------------------------------------------------------
@@ -1431,6 +1508,18 @@ function initFab(){
     fab.classList.toggle("open", open);
     fab.setAttribute("aria-expanded", String(open));
   });
+  
+  // Close FAB menu when clicking outside
+  document.addEventListener("click", (e)=>{
+    if(menu.classList.contains("open") && 
+       !menu.contains(e.target) && 
+       !fab.contains(e.target)){
+      menu.classList.remove("open");
+      fab.classList.remove("open");
+      fab.setAttribute("aria-expanded", "false");
+    }
+  });
+  
   document.querySelectorAll("[data-fab]").forEach(btn=>{
     btn.addEventListener("click", ()=>{
       const action = btn.dataset.fab;
@@ -1439,6 +1528,7 @@ function initFab(){
       if(action==="top") window.scrollTo({top:0, behavior:"smooth"});
       menu.classList.remove("open");
       fab.classList.remove("open");
+      fab.setAttribute("aria-expanded", "false");
     });
   });
 }
