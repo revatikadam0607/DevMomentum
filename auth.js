@@ -182,6 +182,7 @@ function wireAuthForm(){
   const submitBtn = document.getElementById("authSubmitBtn");
   const title = document.getElementById("authTitle");
   const googleBtn = document.getElementById("googleSignInBtn");
+  const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
 
   function setMode(mode){
     authMode = mode;
@@ -245,6 +246,30 @@ function wireAuthForm(){
       if(msg) showAuthError(msg);
     }
     googleBtn.disabled = false;
+    forgotPasswordBtn.addEventListener("click", async ()=>{
+    clearAuthError();
+
+    const email = document.getElementById("authEmail").value.trim();
+
+    if(!email){
+        showAuthError("Please enter your email address first.");
+        return;
+    }
+
+    forgotPasswordBtn.disabled = true;
+    forgotPasswordBtn.textContent = "Sending...";
+
+    try{
+        await auth.sendPasswordResetEmail(email);
+        showAuthError("Password reset link sent! Please check your email.");
+    }catch(err){
+        const msg = friendlyAuthError(err);
+        if(msg) showAuthError(msg);
+    }
+
+    forgotPasswordBtn.disabled = false;
+    forgotPasswordBtn.textContent = "Forgot Password?";
+});
   });
 }
 
