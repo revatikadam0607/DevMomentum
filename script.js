@@ -1853,6 +1853,7 @@ function shiftRoadmapToStartDate(userStartDate){
   // initTheme() already ran once in auth.js, before sign-in even resolved
   // (so the login screen itself respects dark/light preference) — calling
   // it again here would double-register the toggle's click handler.
+  document.body.classList.add("app-running"); // hides the floating demo button
   initCustomCursor();
   initNavbar();
   initScrollTop();

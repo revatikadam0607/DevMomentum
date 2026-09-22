@@ -25,25 +25,63 @@
 
 <!-- ============ AUTH GATE (login / sign up) ============ -->
 <div class="auth-overlay" id="authOverlay">
-  <div class="auth-card">
-    <div class="auth-logo-row">
-      <span class="auth-logo-mark">
-        <svg viewBox="0 0 36 36" width="22" height="22">
-          <path d="M8 27 L26 9" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round"/>
-          <path d="M16 9 L26 9 L26 19" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M4 23 L9 23" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" opacity="0.55"/>
-          <path d="M4 18 L7 18" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" opacity="0.3"/>
+  <div class="auth-card auth-split">
+    <!-- LEFT: brand + value + how-it-works -->
+    <div class="auth-hero-side" id="authHeroSide">
+      <div class="auth-hero-mark" aria-hidden="true">
+        <svg viewBox="0 0 36 36" width="44" height="44">
+          <path d="M8 27 L26 9" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round"/>
+          <path d="M16 9 L26 9 L26 19" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 23 L9 23" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" opacity="0.55"/>
+          <path d="M4 18 L7 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" opacity="0.3"/>
         </svg>
-      </span>
-      <span class="auth-logo-text">MomentumForge</span>
+      </div>
+      <h2 class="auth-hero-title">Build momentum,<br>land the placement.</h2>
+      <p class="auth-hero-sub">A smart roadmap that turns daily effort into interview-ready progress — no guesswork, just consistent steps.</p>
+
+      <div class="how-works">
+        <p class="how-works-label">How this works</p>
+        <ol class="how-works-list">
+          <li>
+            <span class="how-step-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><polyline points="12 7 12 12 16 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span>Pick your Day 1 — the whole roadmap shifts to fit your timeline.</span>
+          </li>
+          <li>
+            <span class="how-step-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M12 3v18M3 12h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+            <span>Add your own topics, or follow the placement curriculum.</span>
+          </li>
+          <li>
+            <span class="how-step-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M4 17V7a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 21h6M12 17v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+            <span>Track streaks, completion, and see the path to interview-ready.</span>
+          </li>
+        </ol>
+      </div>
+
+      <div class="auth-hero-cta">
+        <button type="button" class="btn btn-ghost btn-block" id="tryDemoBtn" data-auth-guest>
+          <svg viewBox="0 0 24 24" width="16" height="16"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg>
+          Try demo — no account needed
+        </button>
+        <p class="auth-hero-note">Your progress stays on this device until you sign in.</p>
+      </div>
     </div>
 
-    <h2 id="authTitle">Welcome back</h2>
-    <p class="auth-subtitle">Turn daily effort into placement-ready progress.</p>
+    <!-- RIGHT: sign-in form -->
+    <div class="auth-form-side">
+      <div class="auth-form-head">
+        <h2 id="authTitle">Welcome back</h2>
+        <p class="auth-subtitle">Turn daily effort into placement-ready progress.</p>
+      </div>
 
-    <div id="authErrorBox" class="auth-error" hidden></div>
+      <div id="authErrorBox" class="auth-error" hidden></div>
 
-    <button type="button" class="google-signin-btn" id="googleSignInBtn">
+      <button type="button" class="google-signin-btn" id="googleSignInBtn">
       <svg viewBox="0 0 48 48" width="18" height="18">
         <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/>
         <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
@@ -76,30 +114,68 @@
     </form>
 
     <p class="auth-mode-toggle" id="authModeToggle"></p>
-</div>
-</div>
+    </div><!-- /.auth-form-side -->
+  </div><!-- /.auth-card -->
+</div><!-- /.authOverlay -->
 
 <!-- ============ FIRST-TIME START DATE PICKER ============ -->
 <div class="auth-overlay" id="startDateOverlay">
-  <div class="auth-card">
-    <div class="auth-logo-row">
-      <span class="auth-logo-mark">
-        <svg viewBox="0 0 36 36" width="22" height="22">
-          <path d="M8 27 L26 9" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round"/>
-          <path d="M16 9 L26 9 L26 19" fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <div class="auth-card auth-split startDate-split">
+    <div class="auth-hero-side startDate-hero">
+      <div class="startDate-illustration" aria-hidden="true">
+        <svg viewBox="0 0 120 120" width="120" height="120">
+          <rect x="14" y="30" width="92" height="60" rx="10" fill="none" stroke="currentColor" stroke-width="2.5"/>
+          <rect x="14" y="30" width="92" height="60" rx="10" fill="currentColor" opacity="0.08"/>
+          <line x1="14" y1="50" x2="106" y2="50" stroke="currentColor" stroke-width="2" opacity="0.5"/>
+          <line x1="14" y1="70" x2="106" y2="70" stroke="currentColor" stroke-width="2" opacity="0.5"/>
+          <circle cx="34" cy="40" r="3" fill="currentColor" opacity="0.6"/>
+          <circle cx="54" cy="40" r="3" fill="currentColor" opacity="0.6"/>
+          <circle cx="74" cy="40" r="3" fill="currentColor" opacity="0.6"/>
+          <path d="M30 88 L42 88 L42 76 L54 76 L54 92 L66 92 L66 70 L78 70 L78 88 L90 88" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="96" cy="22" r="9" fill="currentColor" opacity="0.9"/>
+          <path d="M96 17 L96 22 L101 22" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-      </span>
-      <span class="auth-logo-text">MomentumForge</span>
+      </div>
+      <h2 class="auth-hero-title">Plan your<br>placement journey.</h2>
+      <p class="auth-hero-sub">Pick your Day 1 and MomentumForge builds the rest — every task, milestone, and deadline shifts to match your timeline.</p>
+      <div class="startDate-guide">
+        <p class="how-works-label">What happens next</p>
+        <ol class="how-works-list how-works-list compact">
+          <li>
+            <span class="how-step-icon"><svg viewBox="0 0 24 24" width="14" height="14"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><polyline points="12 7 12 12 16 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span>Choose a start date that matches your interview season.</span>
+          </li>
+          <li>
+            <span class="how-step-icon"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M4 17V7a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 21h6M12 17v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+            <span>Your roadmap auto-fills with a full placement curriculum.</span>
+          </li>
+          <li>
+            <span class="how-step-icon"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" fill="currentColor"/></svg></span>
+            <span>You can change this anytime from Settings.</span>
+          </li>
+        </ol>
+      </div>
     </div>
-    <h2>When do you want to start?</h2>
-    <p class="auth-subtitle">Pick your Day 1 — your whole roadmap will shift to line up with it.</p>
-    <form id="startDateForm" class="auth-form">
-      <label class="auth-field">
-        Start date
-        <input type="date" id="startDateInput" required />
-      </label>
-      <button type="submit" class="btn btn-primary auth-submit-btn" id="startDateSubmitBtn">Build My Roadmap</button>
-    </form>
+
+    <div class="auth-form-side startDate-form">
+      <div class="auth-form-head">
+        <h2>When do you want to start?</h2>
+        <p class="auth-subtitle">Pick your Day 1 — your whole roadmap will shift to line up with it.</p>
+      </div>
+      <form id="startDateForm" class="auth-form">
+        <label class="auth-field">
+          Start date
+          <input type="date" id="startDateInput" required />
+        </label>
+        <div class="startDate-presets">
+          <button type="button" class="startDate-preset" data-offset="0">Today</button>
+          <button type="button" class="startDate-preset" data-offset="3">In 3 days</button>
+          <button type="button" class="startDate-preset" data-offset="7">In 1 week</button>
+          <button type="button" class="startDate-preset" data-offset="14">In 2 weeks</button>
+        </div>
+        <button type="submit" class="btn btn-primary auth-submit-btn" id="startDateSubmitBtn">Build My Roadmap</button>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -110,6 +186,15 @@
   <span class="corner br"></span>
 </div>
 <div class="cursor-core" aria-hidden="true"></div>
+
+<!-- ============ FLOATING DEMO BUTTON ============ -->
+<!-- Always-visible escape hatch for evaluation users who can't sign in
+     (e.g. Firebase not configured). Hidden automatically once the app
+     has actually started so it doesn't clutter the real UI. -->
+<button type="button" class="floating-demo-btn" id="floatingDemoBtn" aria-label="Try demo mode">
+  <svg viewBox="0 0 24 24" width="16" height="16"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg>
+  <span class="floating-demo-label">Try demo</span>
+</button>
 
 <!-- ============ SKIP LINK (Accessibility) ============ -->
 <a class="skip-link" href="#main-content">Skip to main content</a>

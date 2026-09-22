@@ -27,11 +27,17 @@ function initFirebase(){
   // waiting until after sign-in (when init() would otherwise call this).
   initTheme();
 
+  // The "Try demo" button must work even when Firebase isn't configured,
+  // so wire it before any early-return path below.
+  wireGuestButton();
+
   if(!window.firebase){
-    showAuthError("Firebase SDK failed to load. Check your internet connection and reload.");
+    // Firebase SDK failed to load. The "Try demo" button still works
+    // without it, so surface a soft notice rather than hard-blocking.
+    showAuthError("Firebase SDK failed to load. Check your internet connection and reload, or use the demo below.");
     return;
   }
-  if(firebaseConfig.apiKey === "YOUR_API_KEY"){
+  if(!firebaseConfig || firebaseConfig.apiKey === "YOUR_API_KEY"){
     showAuthSetupNotice();
     return;
   }
@@ -59,6 +65,7 @@ async function handleAuthStateChanged(user){
 
     if(!appHasStarted){
       appHasStarted = true;
+      document.body.classList.add("app-running"); // hides the floating demo button
       const savedStartDate = localStorage.getItem(startDateKeyFor(user.uid));
       if(savedStartDate){
         window.startMomentumForgeApp(savedStartDate); // defined in script.js
@@ -69,6 +76,7 @@ async function handleAuthStateChanged(user){
   } else {
     currentUser = null;
     appHasStarted = false;
+    document.body.classList.remove("app-running"); // re-show the floating demo button
     showAuthOverlay();
   }
 }
@@ -129,6 +137,12 @@ function showAuthError(message){
   const box = document.getElementById("authErrorBox");
   box.hidden = false;
   box.textContent = message;
+  // Ensure the gate is actually visible — some callers (e.g. the
+  // Firebase-not-loaded path) only need the message, but without
+  // opening the overlay the whole card — including the demo button —
+  // stays hidden behind opacity:0.
+  document.getElementById("authOverlay").classList.add("open");
+  document.body.classList.add("app-locked");
 }
 function clearAuthError(){
   const box = document.getElementById("authErrorBox");
@@ -186,6 +200,7 @@ function wireAuthForm(){
     document.getElementById("authModeBtn").addEventListener("click", ()=> setMode(mode === "signup" ? "login" : "signup"));
   }
   setMode("login");
+  wireGuestButton();
 
   form.addEventListener("submit", async (e)=>{
     e.preventDefault();
@@ -277,6 +292,120 @@ function escapeHtmlAttr(str){
 
 document.addEventListener("DOMContentLoaded", initFirebase);
 
+/* ---------------------------------------------------------
+   GUEST / DEMO MODE
+   Lets evaluation users try the app without signing in.
+   Progress is saved under a fixed guest key on this device;
+   signing in later migrates nothing (guest data stays local).
+--------------------------------------------------------- */
+const GUEST_START_DATE_KEY = "momentumForgeStartDate_v1_guest";
+
+function startGuestMode(){
+  // Bypass Firebase entirely — run the app as a local-only user.
+  appHasStarted = true;
+  hideAuthOverlay();
+  document.getElementById("authOverlay").classList.remove("open");
+  document.body.classList.remove("app-locked");
+  document.body.classList.add("app-running"); // hides the floating demo button
+
+  // Scope localStorage to a guest key so guest data never collides
+  // with a signed-in account's data on the same device.
+  STORAGE_KEY = "momentumForgeState_v1_guest";
+
+  const chosen = localStorage.getItem(GUEST_START_DATE_KEY);
+  if(chosen){
+    window.startMomentumForgeApp(chosen);
+  } else {
+    // First guest run — guide them through picking Day 1, same as a
+    // signed-up user, but persist under the guest key afterwards.
+    const overlay = document.getElementById("startDateOverlay");
+    const form = document.getElementById("startDateForm");
+    const input = document.getElementById("startDateInput");
+    input.value = toISODate(new Date());
+    overlay.classList.add("open");
+    document.body.classList.add("app-locked");
+    wireStartDatePresets();
+
+    form.addEventListener("submit", function guestOnSubmit(e){
+      e.preventDefault();
+      const chosenDate = input.value;
+      if(!chosenDate) return;
+      localStorage.setItem(GUEST_START_DATE_KEY, chosenDate);
+      overlay.classList.remove("open");
+      document.body.classList.remove("app-locked");
+      form.removeEventListener("submit", guestOnSubmit);
+      window.startMomentumForgeApp(chosenDate);
+    });
+  }
+}
+
+function wireGuestButton(){
+  const btn = document.getElementById("tryDemoBtn");
+  const floatBtn = document.getElementById("floatingDemoBtn");
+
+  function handler(){
+    clearAuthError();
+    startGuestMode();
+  }
+  // Idempotent — initFirebase() may call this before any early-return,
+  // and wireAuthForm() may also reach it on the happy path.
+  if(btn){
+    if(btn.dataset.guestWired === "1") return;
+    btn.dataset.guestWired = "1";
+    btn.addEventListener("click", handler);
+  }
+  if(floatBtn){
+    if(floatBtn.dataset.guestWired === "1") return;
+    floatBtn.dataset.guestWired = "1";
+    floatBtn.addEventListener("click", handler);
+  }
+}
+
+/* ---------------------------------------------------------
+   START DATE MODAL — guided presets
+--------------------------------------------------------- */
+function wireStartDatePresets(){
+  const form = document.getElementById("startDateForm");
+  const input = document.getElementById("startDateInput");
+  if(!form || !input) return;
+
+  const presets = Array.from(document.querySelectorAll(".startDate-preset"));
+  // Guard against double-wiring (this function may be invoked from more
+  // than one entry point across the auth/start-date flows).
+  if(form.dataset.presetsWired === "1"){
+    syncActivePreset(input.value, presets);
+    return;
+  }
+  form.dataset.presetsWired = "1";
+
+  function selectPreset(offsetDays){
+    const d = addDays(new Date(), offsetDays);
+    input.value = toISODate(d);
+    presets.forEach(p=> p.classList.toggle("active", Number(p.dataset.offset) === offsetDays));
+  }
+  presets.forEach(p=>{
+    p.addEventListener("click", ()=> selectPreset(Number(p.dataset.offset)));
+  });
+
+  // Only auto-select "today" if the user hasn't already picked a date —
+  // otherwise re-entering this modal would wipe a deliberate choice.
+  if(!input.value){
+    selectPreset(0);
+  } else {
+    syncActivePreset(input.value, presets);
+  }
+}
+
+/** Highlight whichever preset matches the currently-selected date, if any. */
+function syncActivePreset(value, presets){
+  if(!value) return;
+  const chosen = new Date(value + "T00:00:00");
+  if(isNaN(chosen.getTime())) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diffDays = Math.round((chosen - today) / 86400000);
+  presets.forEach(p=> p.classList.toggle("active", Number(p.dataset.offset) === diffDays));
+}
+
 function startDateKeyFor(uid){
   return `momentumForgeStartDate_v1_${uid}`;
 }
@@ -288,6 +417,7 @@ function promptForStartDate(uid){
   input.value = toISODate(new Date()); // toISODate lives in script.js, loaded before auth.js
   overlay.classList.add("open");
   document.body.classList.add("app-locked");
+  wireStartDatePresets();
 
   form.addEventListener("submit", function onSubmit(e){
     e.preventDefault();

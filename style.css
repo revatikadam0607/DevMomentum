@@ -174,6 +174,7 @@ svg{ display:block; }
   transition: transform .25s var(--ease), box-shadow .25s var(--ease), background .25s var(--ease), color .25s var(--ease);
   display:inline-flex; align-items:center; gap:8px; white-space:nowrap;
 }
+.btn-block{ width:100%; justify-content:center; }
 .btn-primary{ background: var(--primary); color:#fff; box-shadow: var(--shadow-sm); }
 .btn-primary:hover{ transform: translateY(-2px); box-shadow: 0 10px 24px rgba(31,58,95,0.28); background: var(--primary-light); }
 .btn-ghost{ background: transparent; border:1.5px solid var(--border); color: var(--text); }
@@ -958,7 +959,244 @@ body.app-locked{ overflow:hidden; }
 .auth-remember-row{ display:flex; align-items:center; gap:8px; font-size:.85rem; color: var(--text-muted); cursor:pointer; }
 .auth-submit-btn{ width:100%; padding:12px; justify-content:center; }
 .auth-mode-toggle{ text-align:center; font-size:.85rem; color: var(--text-muted); }
+/* ---------- FLOATING DEMO BUTTON ---------- */
+/* Always-visible escape hatch for evaluation users. Hidden once the
+   real app has started so it doesn't clutter the authenticated UI. */
+.floating-demo-btn{
+  position:fixed;
+  bottom:22px;
+  right:22px;
+  z-index:5999;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 16px;
+  border-radius:999px;
+  border:1.5px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size:.85rem;
+  font-weight:600;
+  box-shadow: var(--shadow-md);
+  cursor:pointer;
+  transition: all .2s var(--ease);
+}
+.floating-demo-btn:hover{
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+.floating-demo-btn:active{ transform: translateY(0); }
+.floating-demo-btn svg{ color: var(--accent); }
+.floating-demo-label{ display:inline-block; }
+@media (max-width: 560px){
+  .floating-demo-btn{ bottom:16px; right:16px; padding:9px 12px; }
+  .floating-demo-label{ display:none; }
+}
+/* Hide the floating button once the app has actually started. */
+body.app-running .floating-demo-btn{ display:none; }
+
+.auth-mode-toggle{ text-align:center; font-size:.85rem; color: var(--text-muted); }
 .auth-mode-toggle button{ color: var(--accent); font-weight:600; text-decoration:underline; }
+
+/* ---------- AUTH SPLIT LAYOUT ---------- */
+.auth-card.auth-split{
+  width:min(980px, 100%);
+  max-height:92vh;
+  overflow:hidden;
+  display:flex;
+  flex-direction:row;
+  padding:0;
+  border-radius: var(--radius-lg);
+}
+.auth-hero-side{
+  flex:1.15;
+  padding:40px 38px;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  color:#fff;
+  background: linear-gradient(160deg, var(--primary) 0%, var(--primary-light) 100%);
+  position:relative;
+  overflow:hidden;
+}
+.auth-hero-side::before{
+  content:"";
+  position:absolute;
+  inset:-40% -20% auto -20%;
+  height:60%;
+  background: radial-gradient(circle at 70% 0%, rgba(255,255,255,0.18), transparent 60%);
+  pointer-events:none;
+}
+.auth-hero-mark{
+  width:52px; height:52px;
+  border-radius:14px;
+  background: rgba(255,255,255,0.16);
+  display:flex; align-items:center; justify-content:center;
+  color:#fff;
+  position:relative;
+  z-index:1;
+}
+.auth-hero-title{
+  font-size:1.7rem;
+  line-height:1.15;
+  color:#fff;
+  position:relative;
+  z-index:1;
+}
+.auth-hero-sub{
+  font-size:.95rem;
+  color:rgba(255,255,255,0.88);
+  line-height:1.5;
+  position:relative;
+  z-index:1;
+}
+.how-works{
+  margin-top:6px;
+  position:relative;
+  z-index:1;
+}
+.how-works-label{
+  font-size:.72rem;
+  text-transform:uppercase;
+  letter-spacing:0.12em;
+  font-weight:700;
+  color:rgba(255,255,255,0.7);
+  margin:0 0 10px;
+}
+.how-works-list{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin:0;
+  padding:0;
+}
+.how-works-list li{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  font-size:.9rem;
+  color:rgba(255,255,255,0.92);
+  line-height:1.45;
+}
+.how-step-icon{
+  flex:0 0 auto;
+  width:30px; height:30px;
+  border-radius:50%;
+  background: rgba(255,255,255,0.16);
+  color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  margin-top:2px;
+}
+.auth-hero-cta{
+  margin-top:auto;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  position:relative;
+  z-index:1;
+}
+.auth-hero-cta .btn{
+  width:100%;
+  justify-content:center;
+}
+.auth-hero-note{
+  font-size:.78rem;
+  color:rgba(255,255,255,0.65);
+  text-align:center;
+  margin:0;
+}
+.auth-form-side{
+  flex:1;
+  padding:40px 38px;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  background: var(--bg);
+  overflow-y:auto;
+}
+.auth-form-head{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.auth-form-head h2{
+  font-size:1.5rem;
+}
+.auth-form-side .auth-form{
+  gap:14px;
+}
+.auth-form-side .auth-submit-btn{
+  margin-top:4px;
+}
+@media (max-width: 760px){
+  .auth-card.auth-split{
+    flex-direction:column;
+    max-height:none;
+  }
+  .auth-hero-side{
+    padding:28px 22px;
+    gap:14px;
+  }
+  .auth-hero-title{ font-size:1.4rem; }
+  .auth-form-side{
+    padding:28px 22px;
+  }
+}
+
+/* ---------- START DATE SPLIT ---------- */
+.startDate-hero{
+  color:#fff;
+}
+.startDate-illustration{
+  display:flex; justify-content:center; align-items:center;
+  margin-bottom:8px;
+  color:#fff;
+}
+.startDate-guide{
+  margin-top:auto;
+}
+.startDate-guide .how-works-label{
+  color:rgba(255,255,255,0.7);
+}
+.startDate-guide .how-works-list li{
+  color:rgba(255,255,255,0.92);
+}
+.startDate-form{
+  background: var(--bg);
+}
+.startDate-presets{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.startDate-preset{
+  flex:1;
+  min-width:0;
+  padding:8px 10px;
+  border-radius:9px;
+  border:1.5px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size:.82rem;
+  font-weight:600;
+  cursor:pointer;
+  transition: all .2s var(--ease);
+}
+.startDate-preset:hover{
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.startDate-preset.active{
+  background: var(--primary);
+  color:#fff;
+  border-color: var(--primary);
+}
+@media (max-width: 760px){
+  .startDate-illustration svg{ width:90px; height:90px; }
+}
 
 /* ---------- USER MENU ---------- */
 .user-menu-wrap{ position:relative; }
