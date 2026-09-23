@@ -644,6 +644,86 @@ function initLiveClock(){
 /* ---------------------------------------------------------
    14. DASHBOARD STAT CARDS
 --------------------------------------------------------- */
+/**
+ * Build personalised recommendations from the user's roadmap progress.
+ * Considers: incomplete categories, missed tasks, overdue tasks, next upcoming tasks.
+ * @returns {string[]} Array of human-readable recommendation strings (max 5).
+ */
+function getRecommendations() {
+  const todayISO = toISODate(new Date());
+  const recommendations = [];
+
+  // 1. Categories with less than 50% completion (weakest areas)
+  const categories = [...new Set(STATE.tasks.map(t => t.category).filter(Boolean))];
+  const weakCategories = categories
+    .map(cat => {
+      const catTasks = STATE.tasks.filter(t => t.category === cat);
+      const prog = calcProgress(catTasks);
+      return { cat, pct: prog.pct, pending: prog.pending };
+    })
+    .filter(c => c.pct < 50 && c.pending > 0)
+    .sort((a, b) => a.pct - b.pct)
+    .slice(0, 2);
+
+  for (const { cat, pct, pending } of weakCategories) {
+    recommendations.push(
+      `📚 <strong>${cat}</strong> is only ${pct}% complete — ${pending} task${pending > 1 ? "s" : ""} remaining.`
+    );
+  }
+
+  // 2. Missed tasks (overdue and not completed)
+  const missed = STATE.tasks.filter(t => !t.completed && t.date < todayISO && t.missedFromDate);
+  if (missed.length > 0) {
+    const oldest = missed.sort((a, b) => a.date.localeCompare(b.date))[0];
+    recommendations.push(
+      `⚠️ You have ${missed.length} missed task${missed.length > 1 ? "s" : ""}. Start with: <em>${escapeHtml(oldest.title || "Missed task")}</em>.`
+    );
+  }
+
+  // 3. Today's pending tasks
+  const todayPending = STATE.tasks.filter(t => !t.completed && t.date === todayISO);
+  if (todayPending.length > 0) {
+    recommendations.push(
+      `📅 ${todayPending.length} task${todayPending.length > 1 ? "s are" : " is"} due today — keep your streak going! 🔥`
+    );
+  }
+
+  // 4. Next upcoming task (tomorrow onward)
+  const upcoming = STATE.tasks
+    .filter(t => !t.completed && t.date > todayISO)
+    .sort((a, b) => a.date.localeCompare(b.date));
+  if (upcoming.length > 0) {
+    const next = upcoming[0];
+    recommendations.push(
+      `🚀 Up next: <em>${escapeHtml(next.title || "Upcoming task")}</em> on ${formatShortDate(fromISODate(next.date))}.`
+    );
+  }
+
+  // 5. Motivational nudge if doing well
+  if (recommendations.length === 0) {
+    const overall = overallProgress();
+    if (overall.pct >= 80) {
+      recommendations.push(`🏆 You're ${overall.pct}% done — you're crushing it! Keep the momentum going.`);
+    } else {
+      recommendations.push(`💡 Pick any pending category and complete one task today to build momentum.`);
+    }
+  }
+
+  return recommendations.slice(0, 5);
+}
+
+function renderRecommendations() {
+  const recs = getRecommendations();
+  const card = document.getElementById("recommendationsCard");
+  const list = document.getElementById("recommendationsList");
+  if (!card || !list) return;
+  if (recs.length === 0) { card.style.display = "none"; return; }
+  list.innerHTML = recs.map(r =>
+    `<li style="padding:0.5rem 0.75rem;background:rgba(139,92,246,0.08);border-radius:8px;font-size:0.95rem;line-height:1.5;">${r}</li>`
+  ).join("");
+  card.style.display = "";
+}
+
 function renderDashboard(){
   const todayISO = toISODate(new Date());
   const todayTasks = getTasksForDate(todayISO);
@@ -673,6 +753,7 @@ function renderDashboard(){
   `).join("");
 
   renderTips();
+  renderRecommendations();
 }
 
 function renderTips(){
