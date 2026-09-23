@@ -1536,6 +1536,57 @@ function initFab(){
 /* ---------------------------------------------------------
    27. SETTINGS: EXPORT / IMPORT / PRINT / RESET
 --------------------------------------------------------- */
+/* ---------------------------------------------------------
+   STUDY REMINDERS — Browser Notification API
+--------------------------------------------------------- */
+const REMINDER_PREF_KEY = "momentumForgeReminders";
+
+function isReminderEnabled() {
+  return localStorage.getItem(REMINDER_PREF_KEY) !== "off";
+}
+
+function setReminderEnabled(enabled) {
+  localStorage.setItem(REMINDER_PREF_KEY, enabled ? "on" : "off");
+}
+
+async function requestNotificationPermission() {
+  if (!("Notification" in window)) return false;
+  if (Notification.permission === "granted") return true;
+  if (Notification.permission === "denied") return false;
+  const result = await Notification.requestPermission();
+  return result === "granted";
+}
+
+function sendStudyReminder(title, body) {
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  new Notification(title, { body, icon: "assets/icons/favicon-32.png" });
+}
+
+async function checkAndSendReminders() {
+  if (!isReminderEnabled()) return;
+  const granted = await requestNotificationPermission();
+  if (!granted) return;
+
+  const todayISO = toISODate(new Date());
+  const todayTasks = STATE.tasks.filter(t => t.date === todayISO && !t.completed);
+  const missedTasks = STATE.tasks.filter(t => !t.completed && t.date < todayISO && t.missedFromDate);
+
+  if (missedTasks.length > 0) {
+    sendStudyReminder(
+      "⚠️ You have missed tasks",
+      `${missedTasks.length} task${missedTasks.length > 1 ? "s are" : " is"} overdue. Catch up to keep your streak!`
+    );
+    return;
+  }
+
+  if (todayTasks.length > 0) {
+    sendStudyReminder(
+      `📅 ${todayTasks.length} task${todayTasks.length > 1 ? "s" : ""} for today`,
+      `Start with: ${todayTasks[0].title || "your first task"}`
+    );
+  }
+}
+
 function initSettings(){
   document.getElementById("exportJsonBtn").addEventListener("click", exportProgress);
   document.getElementById("importJsonInput").addEventListener("change", importProgress);
@@ -1870,6 +1921,7 @@ function shiftRoadmapToStartDate(userStartDate){
   initFab();
   initSettings();
   initKeyboardShortcuts();
+  setTimeout(checkAndSendReminders, 2000); // slight delay to let app fully init
 
   renderHero();
   renderDashboard();
