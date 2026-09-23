@@ -964,6 +964,7 @@ function toggleTaskCompletion(id, cardEl){
     maybeCelebrateDayCompletion(task.date);
     maybeShowCertificate();
   } else {
+    STATE.xp -= xpForTask(task);
     cardEl.querySelector(".task-checkbox").classList.remove("checked");
     cardEl.classList.remove("completed");
   }
