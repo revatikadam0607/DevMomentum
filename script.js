@@ -1536,6 +1536,31 @@ function initFab(){
 /* ---------------------------------------------------------
    27. SETTINGS: EXPORT / IMPORT / PRINT / RESET
 --------------------------------------------------------- */
+const STUDY_AVAILABILITY_KEY = "momentumForgeStudyAvailability";
+
+function initStudyAvailabilityCard() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STUDY_AVAILABILITY_KEY) || "{}");
+    const wdEl = document.getElementById("weekdayHours");
+    const weEl = document.getElementById("weekendHours");
+    const statusEl = document.getElementById("availabilityStatus");
+    if (wdEl && saved.weekday != null) wdEl.value = saved.weekday;
+    if (weEl && saved.weekend != null) weEl.value = saved.weekend;
+    const btn = document.getElementById("saveStudyAvailabilityBtn");
+    if (btn) {
+      btn.addEventListener("click", () => {
+        const weekday = parseFloat(wdEl?.value) || 0;
+        const weekend = parseFloat(weEl?.value) || 0;
+        localStorage.setItem(STUDY_AVAILABILITY_KEY, JSON.stringify({ weekday, weekend }));
+        if (statusEl) {
+          statusEl.style.display = "block";
+          setTimeout(() => { statusEl.style.display = "none"; }, 2000);
+        }
+      });
+    }
+  } catch {}
+}
+
 function initSettings(){
   document.getElementById("exportJsonBtn").addEventListener("click", exportProgress);
   document.getElementById("importJsonInput").addEventListener("change", importProgress);
@@ -1869,6 +1894,7 @@ function shiftRoadmapToStartDate(userStartDate){
   initModalDismiss();
   initFab();
   initSettings();
+  initStudyAvailabilityCard();
   initKeyboardShortcuts();
 
   renderHero();
