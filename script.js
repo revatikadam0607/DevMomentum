@@ -1331,13 +1331,54 @@ function showMonthDayDetail(iso){
 --------------------------------------------------------- */
 function renderStatistics(){
   const overall = overallProgress();
+
+  // --- Weekly study hours ---
+  const weekProg = calcProgress(weekTasks(new Date()));
+
+  // --- Monthly study hours ---
+  const monthProg = calcProgress(monthTasks(new Date()));
+
+  // --- Missed-task rate ---
+  const todayISO = toISODate(new Date());
+  const pastTasks = STATE.tasks.filter(t => t.date < todayISO);
+  const missedCount = pastTasks.filter(t => !t.completed && t.missedFromDate).length;
+  const missedRate = pastTasks.length > 0
+    ? Math.round((missedCount / pastTasks.length) * 100)
+    : 0;
+
+  // --- Estimated completion date ---
+  let estimatedCompletion = "—";
+  const remainingTasks = overall.pending;
+  const completedTotal = overall.completed;
+  if (completedTotal > 0 && remainingTasks > 0) {
+    // Average tasks per day from the start
+    const startISO = STATE.tasks.length > 0
+      ? STATE.tasks.map(t => t.date).sort()[0]
+      : todayISO;
+    const daysElapsed = Math.max(1, Math.round(
+      (fromISODate(todayISO) - fromISODate(startISO)) / 86400000
+    ));
+    const avgPerDay = completedTotal / daysElapsed;
+    if (avgPerDay > 0) {
+      const daysLeft = Math.ceil(remainingTasks / avgPerDay);
+      const estDate = addDays(new Date(), daysLeft);
+      estimatedCompletion = formatShortDate(estDate);
+    }
+  } else if (remainingTasks === 0) {
+    estimatedCompletion = "Done 🎉";
+  }
+
   const cards = [
     { label:"Current Streak", value: `${STATE.streak} days` },
     { label:"Longest Streak", value: `${STATE.longestStreak} days` },
     { label:"Total Study Hours", value: minutesToHoursLabel(overall.minutes) },
+    { label:"This Week", value: minutesToHoursLabel(weekProg.minutes) },
+    { label:"This Month", value: minutesToHoursLabel(monthProg.minutes) },
     { label:"Tasks Remaining", value: overall.pending },
     { label:"Tasks Completed", value: overall.completed },
     { label:"Completion %", value: overall.pct + "%" },
+    { label:"Missed-Task Rate", value: missedRate + "%" },
+    { label:"Est. Completion", value: estimatedCompletion },
     { label:"Level", value: `Lvl ${currentLevel()}` },
     { label:"XP", value: STATE.xp },
   ];
