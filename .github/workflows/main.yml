@@ -66,12 +66,12 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issue.number,
-              body: `${marker}
 
-Thanks @${assignee.login} for taking up this issue! 🎉
+	Thanks @${assignee.login} for taking up this issue! 🎉
 
-You may proceed with the implementation. Please make sure to follow the project's contribution guidelines and keep the changes focused on this issue.`
-            });
+	You may proceed with the implementation. Please make sure to follow the project's contribution guidelines and keep the changes focused on this issue.`              body: `${marker}
+
+  });
 
 
   # ============================================================
