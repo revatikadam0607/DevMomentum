@@ -673,6 +673,43 @@ function renderDashboard(){
   `).join("");
 
   renderTips();
+  renderCalendarShortcuts();
+}
+
+function renderCalendarShortcuts() {
+  const container = document.getElementById("calendarShortcuts");
+  if (!container) return;
+
+  const todayISO = toISODate(new Date());
+  const todayTasks = STATE.tasks.filter(t => t.date === todayISO);
+  const todayPending = todayTasks.filter(t => !t.completed).length;
+  const weekProg = calcProgress(weekTasks(new Date()));
+
+  const shortcuts = [
+    {
+      label: `📅 Today (${todayPending} pending)`,
+      view: "daily",
+      color: todayPending > 0 ? "#e74c3c" : "#2ecc71",
+    },
+    {
+      label: `🗓️ This Week (${weekProg.pct}%)`,
+      view: "weekly",
+      color: "#3498db",
+    },
+    {
+      label: "📆 Monthly View",
+      view: "monthly",
+      color: "#9b59b6",
+    },
+  ];
+
+  container.innerHTML = shortcuts.map(s => `
+    <button
+      class="btn btn-secondary"
+      onclick="activateTab('${s.view}'); document.getElementById('plannerTabs').scrollIntoView({behavior:'smooth',block:'start'});"
+      style="border-left:3px solid ${s.color};padding:0.4rem 0.85rem;font-size:0.9rem;"
+    >${s.label}</button>
+  `).join("");
 }
 
 function renderTips(){
