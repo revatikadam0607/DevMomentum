@@ -1536,6 +1536,47 @@ function initFab(){
 /* ---------------------------------------------------------
    27. SETTINGS: EXPORT / IMPORT / PRINT / RESET
 --------------------------------------------------------- */
+const ACADEMIC_PROFILE_KEY = "momentumForgeAcademicProfile";
+
+function loadAcademicProfile() {
+  try {
+    const raw = localStorage.getItem(ACADEMIC_PROFILE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
+}
+
+function saveAcademicProfile(profile) {
+  try { localStorage.setItem(ACADEMIC_PROFILE_KEY, JSON.stringify(profile)); } catch {}
+}
+
+function initAcademicProfileCard() {
+  const profile = loadAcademicProfile();
+  const yearEl = document.getElementById("academicYear");
+  const branchEl = document.getElementById("academicBranch");
+  const gradEl = document.getElementById("graduationYear");
+  const statusEl = document.getElementById("academicProfileStatus");
+
+  if (yearEl && profile.year) yearEl.value = profile.year;
+  if (branchEl && profile.branch) branchEl.value = profile.branch;
+  if (gradEl && profile.graduationYear) gradEl.value = profile.graduationYear;
+
+  const btn = document.getElementById("saveAcademicProfileBtn");
+  if (btn) {
+    btn.addEventListener("click", () => {
+      const updated = {
+        year: yearEl?.value || "",
+        branch: branchEl?.value?.trim() || "",
+        graduationYear: gradEl?.value || "",
+      };
+      saveAcademicProfile(updated);
+      if (statusEl) {
+        statusEl.style.display = "block";
+        setTimeout(() => { statusEl.style.display = "none"; }, 2000);
+      }
+    });
+  }
+}
+
 function initSettings(){
   document.getElementById("exportJsonBtn").addEventListener("click", exportProgress);
   document.getElementById("importJsonInput").addEventListener("change", importProgress);
@@ -1869,6 +1910,7 @@ function shiftRoadmapToStartDate(userStartDate){
   initModalDismiss();
   initFab();
   initSettings();
+  initAcademicProfileCard();
   initKeyboardShortcuts();
 
   renderHero();

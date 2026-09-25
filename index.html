@@ -603,6 +603,30 @@
             <li><kbd>Esc</kbd> Close dialogs</li>
           </ul>
         </div>
+        <!-- Academic Profile Card -->
+        <div class="card glass" id="academicProfileCard">
+          <h3>Academic Profile</h3>
+          <p class="muted">Personalise your roadmap context.</p>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:1rem;">
+            <label style="font-size:0.9rem;font-weight:600;">Academic Year
+              <select id="academicYear" class="select-input" style="margin-top:4px;">
+                <option value="">— select —</option>
+                <option>1st Year</option>
+                <option>2nd Year</option>
+                <option>3rd Year</option>
+                <option>4th Year</option>
+              </select>
+            </label>
+            <label style="font-size:0.9rem;font-weight:600;">Branch / Specialisation
+              <input type="text" id="academicBranch" class="select-input" placeholder="e.g. Computer Science" style="margin-top:4px;" />
+            </label>
+            <label style="font-size:0.9rem;font-weight:600;">Graduation Year
+              <input type="number" id="graduationYear" class="select-input" placeholder="e.g. 2027" min="2024" max="2035" style="margin-top:4px;" />
+            </label>
+            <button class="btn btn-primary" id="saveAcademicProfileBtn" style="margin-top:4px;">Save Profile</button>
+            <p id="academicProfileStatus" style="font-size:0.85rem;color:#2ecc71;display:none;">✅ Profile saved!</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
