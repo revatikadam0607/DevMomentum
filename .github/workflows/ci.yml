@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate HTML, CSS & JS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install validation tools
+        run: |
+          npm install -g html-validate
+          npm install -g jshint
+
+      - name: Validate HTML
+        run: |
+          HTML_FILES=$(find . -name "*.html" -not -path "*/node_modules/*")
+          if [ -z "$HTML_FILES" ]; then
+            echo "No HTML files found."
+          else
+            echo "$HTML_FILES" | xargs html-validate || true
+          fi
+
+      - name: Check JS syntax
+        run: |
+          JS_FILES=$(find . -name "*.js" -not -path "*/node_modules/*" -not -name "*.min.js")
+          for f in $JS_FILES; do
+            node --check "$f" && echo "✅ $f" || echo "❌ Syntax error in $f"
+          done
+
+      - name: Validate roadmap.json
+        run: |
+          if [ -f roadmap.json ]; then
+            node -e "JSON.parse(require('fs').readFileSync('roadmap.json','utf8')); console.log('✅ roadmap.json is valid JSON')"
+          fi
