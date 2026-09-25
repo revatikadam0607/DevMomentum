@@ -2152,7 +2152,7 @@ function generateDsaRoadmap() {
     branchText.includes("information") ||
     branchText.includes("computer") ||
     branchText.includes("software") ||
-    branchText.includes("it");
+    /\bit\b/.test(branchText);
 
   selectedTopics.sort((a, b) => {
     // Academic year affects which difficulty is prioritized.
@@ -2208,9 +2208,9 @@ function generateDsaRoadmap() {
     <h3>Your Personalized DSA Roadmap</h3>
 
     <p>
-      <strong>${academicYear}</strong> ·
-      <strong>${branch}</strong> ·
-      ${level.charAt(0).toUpperCase() + level.slice(1)}
+      <strong>${escapeHtml(academicYear)}</strong> ·
+      <strong>${escapeHtml(branch)}</strong> ·
+      ${escapeHtml(level.charAt(0).toUpperCase() + level.slice(1))}
     </p>
 
     <p>
