@@ -68,9 +68,9 @@ jobs:
               issue_number: issue.number,
               body: `${marker}
 
-Thanks @${assignee.login} for taking up this issue! 🎉
+              Thanks @${assignee.login} for taking up this issue! 🎉
 
-You may proceed with the implementation. Please make sure to follow the project's contribution guidelines and keep the changes focused on this issue.`
+              You may proceed with the implementation. Please make sure to follow the project's contribution guidelines and keep the changes focused on this issue.`
             });
 
 
@@ -178,9 +178,9 @@ You may proceed with the implementation. Please make sure to follow the project'
               // ------------------------------------------------
               // Get comments
               // ------------------------------------------------
-
+                    
               const comments = await github.paginate(
-                github.rest.issues.listComments,
+                                    github.rest.issues.listComments,
                 {
                   owner: context.repo.owner,
                   repo: context.repo.repo,
@@ -288,11 +288,11 @@ You may proceed with the implementation. Please make sure to follow the project'
                     return false;
                   }
 
-                  return (
+                                    return (
                     pr.user.login === assignee.login &&
-                    new Date(pr.created_at) > assignedAt
+                                      new Date(pr.created_at) > assignedAt
                   );
-                });
+                                  });
 
 
               if (contributorPR) {
@@ -334,9 +334,9 @@ You may proceed with the implementation. Please make sure to follow the project'
 
                     body: `${marker}
 
-Hi @${assignee.login}, just a quick reminder that this issue has been assigned to you for 3 days.
+                    Hi @${assignee.login}, just a quick reminder that this issue has been assigned to you for 3 days.
 
-Please share an update on your progress when possible. If you are facing any difficulty, feel free to mention it here so the maintainers can help.`
+                    Please share an update on your progress when possible. If you are facing any difficulty, feel free to mention it here so the maintainers can help.`
                   });
 
                   console.log(
@@ -444,11 +444,11 @@ Please share an update on your progress when possible. If you are facing any dif
 
                   body: `${marker}
 
-Hi @${assignee.login}, this issue has been assigned to you for 5 days without any visible progress or update.
+                  Hi @${assignee.login}, this issue has been assigned to you for 5 days without any visible progress or update.
 
-To give other contributors an opportunity to work on the issue, it has now been opened for other contributors.
+                  To give other contributors an opportunity to work on the issue, it has now been opened for other contributors.
 
-Thank you for your interest and contribution! 🙌`
+                  Thank you for your interest and contribution! 🙌`
                 });
 
 

@@ -1900,3 +1900,331 @@ function shiftRoadmapToStartDate(userStartDate){
 // of running automatically on DOMContentLoaded — auth.js calls this once
 // a user is signed in (either fresh, or via a remembered session).
 window.startMomentumForgeApp = init;
+// ============ DSA ROADMAP GENERATOR ============
+
+const dsaTopics = [
+  { name: "Arrays", hours: 4, level: 1 },
+  { name: "Strings", hours: 4, level: 1 },
+  { name: "Searching", hours: 3, level: 1 },
+  { name: "Sorting", hours: 4, level: 1 },
+  { name: "Linked Lists", hours: 5, level: 2 },
+  { name: "Stacks", hours: 3, level: 2 },
+  { name: "Queues", hours: 3, level: 2 },
+  { name: "Recursion", hours: 5, level: 2 },
+  { name: "Trees", hours: 6, level: 2 },
+  { name: "BST", hours: 4, level: 2 },
+  { name: "Heaps", hours: 4, level: 2 },
+  { name: "Hashing", hours: 4, level: 2 },
+  { name: "Graphs", hours: 7, level: 3 },
+  { name: "Greedy Algorithms", hours: 5, level: 3 },
+  { name: "Dynamic Programming", hours: 8, level: 3 }
+];
+
+function generateDsaRoadmap() {
+  const academicYear = document.getElementById("dsaAcademicYear").value;
+  const branch = document.getElementById("dsaBranch").value.trim();
+  const level = document.getElementById("dsaLevel").value;
+  const duration = Number(document.getElementById("dsaDuration").value);
+  const weekdayHours = Number(document.getElementById("dsaWeekdayHours").value);
+  const weekendHours = Number(document.getElementById("dsaWeekendHours").value);
+
+  const preview = document.getElementById("dsaRoadmapPreview");
+
+  // Validate inputs before scheduling.
+  if (!branch) {
+    preview.innerHTML = "<p class=\"warning\">Please enter your branch.</p>";
+    return;
+  }
+
+  if (
+    !Number.isFinite(duration) ||
+    duration <= 0 ||
+    !Number.isFinite(weekdayHours) ||
+    weekdayHours <= 0 ||
+    !Number.isFinite(weekendHours) ||
+    weekendHours <= 0
+  ) {
+    preview.innerHTML =
+      "<p class=\"warning\">Please enter valid study hours greater than 0.</p>";
+    return;
+  }
+
+  const weeklyHours = (weekdayHours * 5) + (weekendHours * 2);
+  const totalAvailableHours = weeklyHours * duration;
+
+    /*
+   * Use academic year and branch to personalize topic priority.
+   */
+
+  let selectedTopics = [...dsaTopics];
+
+  if (level === "advanced") {
+    selectedTopics.sort((a, b) => b.level - a.level);
+  } else if (level === "intermediate") {
+    selectedTopics.sort((a, b) => {
+      if (a.level === 1 && b.level !== 1) return 1;
+      if (a.level !== 1 && b.level === 1) return -1;
+      return a.level - b.level;
+    });
+  }
+
+    /*
+   * Use academic year and branch to personalize topic priority.
+   */
+  const yearNumber = Number(academicYear.charAt(0));
+
+  const branchText = branch.toLowerCase();
+  const technicalBranch =
+    branchText.includes("information") ||
+    branchText.includes("computer") ||
+    branchText.includes("software") ||
+    branchText.includes("it");
+
+  selectedTopics.sort((a, b) => {
+    // Academic year affects which difficulty is prioritized.
+    const yearPriority =
+      yearNumber <= 2
+        ? a.level - b.level
+        : yearNumber === 3
+          ? Math.abs(a.level - 2) - Math.abs(b.level - 2)
+          : b.level - a.level;
+
+    if (yearPriority !== 0) {
+      return yearPriority;
+    }
+
+    // Current DSA level is the secondary priority.
+    if (level === "advanced" && a.level !== b.level) {
+      return b.level - a.level;
+    }
+
+    if (level === "intermediate" && a.level !== b.level) {
+      return b.level - a.level;
+    }
+
+    // Technical branches prioritize fundamentals consistently.
+    if (technicalBranch && a.level === b.level) {
+      return a.name.localeCompare(b.name);
+    }
+
+    return 0;
+  });
+
+  const totalTopicHours = selectedTopics.reduce(
+    (sum, topic) => sum + topic.hours,
+    0
+  );
+
+  // Do not create a roadmap that cannot fit inside the selected duration.
+  if (totalTopicHours > totalAvailableHours) {
+    preview.innerHTML = `
+      <p class="warning">
+        Your selected ${duration}-week schedule provides
+        <strong>${totalAvailableHours} hours</strong>, but this roadmap
+        requires approximately <strong>${totalTopicHours} hours</strong>.
+        Increase your study hours or choose a longer duration.
+      </p>
+    `;
+    return;
+  }
+
+  const topicsPerWeek = Math.ceil(selectedTopics.length / duration);
+
+  let html = `
+    <h3>Your Personalized DSA Roadmap</h3>
+
+    <p>
+      <strong>${academicYear}</strong> ·
+      <strong>${branch}</strong> ·
+      ${level.charAt(0).toUpperCase() + level.slice(1)}
+    </p>
+
+    <p>
+      Available study time:
+      <strong>${totalAvailableHours} hours</strong>
+    </p>
+
+    <p>
+      Estimated DSA study time:
+      <strong>${totalTopicHours} hours</strong>
+    </p>
+  `;
+
+  html += `<div class="roadmap-topic-list">`;
+
+  for (let week = 1; week <= duration; week++) {
+    const start = (week - 1) * topicsPerWeek;
+    const end = Math.min(start + topicsPerWeek, selectedTopics.length);
+
+    if (start >= selectedTopics.length) {
+      break;
+    }
+
+    const weekTopics = selectedTopics.slice(start, end);
+
+    const weekHours = weekTopics.reduce(
+      (sum, topic) => sum + topic.hours,
+      0
+    );
+
+    html += `
+      <div class="card glass">
+        <h4>Week ${week}</h4>
+
+        <p>
+          ${weekTopics.map(topic => topic.name).join(", ")}
+        </p>
+
+        <p>
+          Estimated time: ${weekHours} hours
+        </p>
+      </div>
+    `;
+  }
+
+  html += `</div>`;
+  preview.innerHTML = html;
+
+  // ==========================================
+  // CREATE CALENDAR TASKS
+  // ==========================================
+
+  const newTasks = [];
+
+  let currentDate = new Date();
+  currentDate.setHours(0, 0, 0, 0);
+
+  const endDate = new Date(currentDate);
+  endDate.setDate(endDate.getDate() + duration * 7 - 1);
+
+  for (const topic of selectedTopics) {
+    let remainingMinutes = topic.hours * 60;
+    let part = 1;
+
+    while (remainingMinutes > 0) {
+      // Never schedule beyond the selected duration.
+      if (currentDate > endDate) {
+        preview.innerHTML += `
+          <p class="warning">
+            The roadmap could not fit all tasks inside the selected duration.
+          </p>
+        `;
+        return;
+      }
+
+      const day = currentDate.getDay();
+
+      const availableHours =
+        day === 0 || day === 6
+          ? weekendHours
+          : weekdayHours;
+
+      const availableMinutes = availableHours * 60;
+
+      if (availableMinutes <= 0) {
+        currentDate.setDate(currentDate.getDate() + 1);
+        continue;
+      }
+
+      const taskDuration = Math.min(
+        remainingMinutes,
+        availableMinutes,
+        120
+      );
+
+      const date = toISODate(currentDate);
+
+      const topicId = topic.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-");
+
+      const taskId = `dsa-generated-${topicId}-${part}`;
+
+      newTasks.push({
+        id: taskId,
+        date: date,
+        category: "DSA",
+        topic:
+          topic.hours * 60 > 120
+            ? `${topic.name} - Part ${part}`
+            : topic.name,
+        durationMinutes: taskDuration,
+        difficulty:
+          level === "beginner"
+            ? "Easy"
+            : level === "intermediate"
+              ? "Medium"
+              : "Hard",
+        priority: "High",
+        completed: false,
+        order: getTasksForDate(date).length + newTasks.length + 1
+      });
+
+      remainingMinutes -= taskDuration;
+
+      // Move to the next day after using today's study capacity.
+      currentDate.setDate(currentDate.getDate() + 1);
+      part++;
+    }
+  }
+
+  // ==========================================
+  // PRESERVE COMPLETED GENERATED TASKS
+  // ==========================================
+
+  const oldGeneratedTasks = STATE.tasks.filter(task =>
+    task.id.startsWith("dsa-generated-")
+  );
+
+  const completedGeneratedTasks = oldGeneratedTasks.filter(
+    task => task.completed
+  );
+
+  STATE.tasks = STATE.tasks.filter(
+    task => !task.id.startsWith("dsa-generated-")
+  );
+
+  newTasks.forEach(task => {
+    const previousTask = completedGeneratedTasks.find(
+      oldTask => oldTask.id === task.id
+    );
+
+    if (previousTask) {
+      task.completed = true;
+    }
+
+    STATE.tasks.push(task);
+  });
+
+  saveState();
+
+  renderDaily();
+  renderDashboard();
+
+  if (
+    document.getElementById("panel-weekly").classList.contains("active")
+  ) {
+    renderWeekly();
+  }
+
+  if (
+    document.getElementById("panel-monthly").classList.contains("active")
+  ) {
+    renderMonthly();
+  }
+
+  showToast(
+    "DSA roadmap added to your calendar",
+    "success"
+  );
+}
+
+const generateDsaRoadmapBtn =
+  document.getElementById("generateDsaRoadmapBtn");
+
+if (generateDsaRoadmapBtn) {
+  generateDsaRoadmapBtn.addEventListener(
+    "click",
+    generateDsaRoadmap
+  );
+}
