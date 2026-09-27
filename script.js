@@ -2271,6 +2271,10 @@ function generateDsaRoadmap() {
   const endDate = new Date(currentDate);
   endDate.setDate(endDate.getDate() + duration * 7 - 1);
 
+  // Track how many minutes have already been used on currentDate so
+  // multiple topic chunks can share a day up to its capacity.
+  let usedMinutesToday = 0;
+
   for (const topic of selectedTopics) {
     let remainingMinutes = topic.hours * 60;
     let part = 1;
@@ -2288,23 +2292,24 @@ function generateDsaRoadmap() {
 
       const day = currentDate.getDay();
 
-      const availableHours =
-        day === 0 || day === 6
-          ? weekendHours
-          : weekdayHours;
+      const dailyCapacityMinutes = (day === 0 || day === 6 ? weekendHours : weekdayHours) * 60;
 
-      const availableMinutes = availableHours * 60;
-
-      if (availableMinutes <= 0) {
+      if (dailyCapacityMinutes <= 0) {
         currentDate.setDate(currentDate.getDate() + 1);
+        usedMinutesToday = 0;
         continue;
       }
 
-      const taskDuration = Math.min(
-        remainingMinutes,
-        availableMinutes,
-        120
-      );
+      const remainingCapacityToday = dailyCapacityMinutes - usedMinutesToday;
+
+      if (remainingCapacityToday <= 0) {
+        // Day is full — advance to tomorrow.
+        currentDate.setDate(currentDate.getDate() + 1);
+        usedMinutesToday = 0;
+        continue;
+      }
+
+      const taskDuration = Math.min(remainingMinutes, remainingCapacityToday, 120);
 
       const date = toISODate(currentDate);
 
@@ -2335,9 +2340,14 @@ function generateDsaRoadmap() {
       });
 
       remainingMinutes -= taskDuration;
+      usedMinutesToday += taskDuration;
 
-      // Move to the next day after using today's study capacity.
-      currentDate.setDate(currentDate.getDate() + 1);
+      // Only advance to the next day when today's capacity is exhausted.
+      if (usedMinutesToday >= dailyCapacityMinutes) {
+        currentDate.setDate(currentDate.getDate() + 1);
+        usedMinutesToday = 0;
+      }
+
       part++;
     }
   }
