@@ -9,7 +9,8 @@
       "DSA",
       "Development",
       "DSA Sheet",
-      "Revision"
+      "Revision",
+      "Preparation"
     ]
   },
   "quotes": [
@@ -371,6 +372,83 @@
       "topic": "Backend Mega Project - Setup",
       "durationMinutes": 90,
       "difficulty": "Hard",
+      "priority": "Medium",
+      "completed": false,
+      "order": 1
+    },
+    {
+      "id": "task-019",
+      "date": "2026-08-05",
+      "category": "Preparation",
+      "topic": "Resume Update",
+      "durationMinutes": 60,
+      "difficulty": "Medium",
+      "priority": "High",
+      "completed": false,
+      "order": 1
+    },
+    {
+      "id": "task-020",
+      "date": "2026-08-06",
+      "category": "Preparation",
+      "topic": "GitHub Profile Optimization",
+      "durationMinutes": 45,
+      "difficulty": "Easy",
+      "priority": "Medium",
+      "completed": false,
+      "order": 1
+    },
+    {
+      "id": "task-021",
+      "date": "2026-08-07",
+      "category": "Preparation",
+      "topic": "LinkedIn Profile Update",
+      "durationMinutes": 45,
+      "difficulty": "Easy",
+      "priority": "Medium",
+      "completed": false,
+      "order": 1
+    },
+    {
+      "id": "task-022",
+      "date": "2026-08-08",
+      "category": "Preparation",
+      "topic": "Portfolio Creation",
+      "durationMinutes": 120,
+      "difficulty": "Hard",
+      "priority": "High",
+      "completed": false,
+      "order": 1
+    },
+    {
+      "id": "task-023",
+      "date": "2026-08-09",
+      "category": "Preparation",
+      "topic": "Open-Source Contribution",
+      "durationMinutes": 120,
+      "difficulty": "Hard",
+      "priority": "Medium",
+      "completed": false,
+      "order": 1
+    },
+    {
+      "id": "task-024",
+      "date": "2026-08-10",
+      "category": "Preparation",
+      "topic": "Hackathon Registration & Prep",
+      "durationMinutes": 60,
+      "difficulty": "Medium",
+      "priority": "Medium",
+      "completed": false,
+      "order": 1
+    },
+    {
+      "id": "task-025",
+      "date": "2026-08-11",
+      "category": "Preparation",
+      "topic": "Certifications Review",
+      "durationMinutes": 60,
+      "difficulty": "Medium",
       "priority": "Medium",
       "completed": false,
       "order": 1
