@@ -1727,6 +1727,9 @@ function initSettings(){
     if(!newDate) return;
     applyStartDateChange(newDate);
   });
+
+  if(typeof updateAdminUI === "function") updateAdminUI();
+  if(typeof wireAdminControls === "function") wireAdminControls();
 }
 
 /**
