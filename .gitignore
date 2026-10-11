@@ -1,0 +1,12 @@
+# API
+api/node_modules/
+api/.env
+api/coverage/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp
