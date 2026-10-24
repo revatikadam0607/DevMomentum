@@ -1,0 +1,278 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin Dashboard | DevMomentum</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./admin.css" />
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+  <script src="./firebase-config.js"></script>
+  <script src="./admin.js" defer></script>
+</head>
+
+<body>
+  <div class="dashboard-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="index.html" aria-label="DevMomentum home">
+        <span class="brand-mark">D</span>
+        <span>Dev<span class="brand-accent">Momentum</span></span>
+      </a>
+
+      <div class="sidebar-label">WORKSPACE</div>
+
+      <nav class="sidebar-nav" aria-label="Dashboard navigation">
+        <a class="nav-link active" href="#overview">
+          <span class="nav-icon" aria-hidden="true">▦</span>
+          Overview
+        </a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="secure-indicator">
+          <span class="status-dot"></span>
+          <div>
+            <strong>Admin workspace</strong>
+            <small>Restricted access</small>
+          </div>
+        </div>
+        <a class="back-link" href="index.html">← Back to platform</a>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button
+          class="mobile-menu"
+          id="mobileMenu"
+          type="button"
+          aria-label="Toggle navigation"
+          aria-expanded="false"
+        >☰</button>
+
+        <div class="breadcrumb">
+          <span>DevMomentum</span>
+          <span class="breadcrumb-separator">/</span>
+          <strong>Admin dashboard</strong>
+        </div>
+
+        <div class="topbar-right">
+          <span class="environment-label">
+            <span class="status-dot"></span> Analytics
+          </span>
+          <button class="avatar" id="adminAvatar" type="button" title="Admin account">A</button>
+        </div>
+      </header>
+
+      <section class="page-content" id="overview">
+        <div class="page-heading">
+          <div>
+            <p class="eyebrow">PLATFORM MANAGEMENT</p>
+            <h1>Admin overview</h1>
+            <p class="page-subtitle">
+              A clear view of platform adoption, learning activity, and progress.
+            </p>
+          </div>
+
+          <button class="button button-secondary" id="refreshButton" type="button">
+            ↻ Refresh data
+          </button>
+        </div>
+
+        <div class="notice notice-info" id="dashboardStatus" role="status" aria-live="polite">
+          <span class="notice-icon" aria-hidden="true">i</span>
+          <div>
+            <strong>Checking dashboard access</strong>
+            <p>Verifying your account and loading platform analytics.</p>
+          </div>
+        </div>
+
+        <div class="notice notice-error hidden" id="accessDenied" role="alert">
+          <span class="notice-icon" aria-hidden="true">!</span>
+          <div>
+            <strong>Access unavailable</strong>
+            <p id="accessDeniedMessage">
+              This dashboard requires a verified administrator account.
+            </p>
+            <a class="text-link" href="index.html">Return to DevMomentum</a>
+          </div>
+        </div>
+
+        <section id="dashboardContent" class="hidden" aria-label="Platform analytics">
+
+          <!-- PLATFORM SNAPSHOT -->
+          <div class="section-heading">
+            <div>
+              <h2>Platform snapshot</h2>
+              <p>Key metrics from the available analytics data.</p>
+            </div>
+            <span class="updated-label" id="lastUpdated">Not refreshed yet</span>
+          </div>
+
+          <div class="filter-bar">
+            <label class="filter-field" for="periodFilter">
+              <span>Activity period</span>
+              <select id="periodFilter">
+                <option value="7">Last 7 days</option>
+                <option value="30" selected>Last 30 days</option>
+                <option value="90">Last 90 days</option>
+              </select>
+            </label>
+
+            <button class="button button-primary" id="applyFilters" type="button">
+              Apply filters
+            </button>
+          </div>
+
+          <div class="metrics-grid">
+            <article class="metric-card">
+              <div class="metric-top">
+                <span class="metric-label">Registered users</span>
+                <span class="metric-icon icon-blue">♙</span>
+              </div>
+              <div class="metric-value" id="totalUsers">—</div>
+              <p class="metric-caption">Total profiles recorded</p>
+            </article>
+
+            <article class="metric-card">
+              <div class="metric-top">
+                <span class="metric-label">Active users</span>
+                <span class="metric-icon icon-green">↗</span>
+              </div>
+              <div class="metric-value" id="activeUsers">—</div>
+              <p class="metric-caption" id="activeUsersCaption">Selected activity period</p>
+            </article>
+
+            <article class="metric-card">
+              <div class="metric-top">
+                <span class="metric-label">Roadmaps generated</span>
+                <span class="metric-icon icon-purple">⌘</span>
+              </div>
+              <div class="metric-value" id="roadmapsGenerated">—</div>
+              <p class="metric-caption" id="roadmapsCaption">Selected activity period</p>
+            </article>
+
+            <article class="metric-card">
+              <div class="metric-top">
+                <span class="metric-label">Average study time</span>
+                <span class="metric-icon icon-orange">◷</span>
+              </div>
+              <div class="metric-value" id="averageStudyHours">—</div>
+              <p class="metric-caption">Hours per recorded user in period</p>
+            </article>
+          </div>
+
+          <!-- PLATFORM INSIGHTS -->
+          <section class="dashboard-section" aria-labelledby="insightsHeading">
+            <div class="section-heading section-heading-spaced">
+              <div>
+                <h2 id="insightsHeading">Platform insights</h2>
+                <p>Roadmap preferences and task completion trends.</p>
+              </div>
+            </div>
+
+            <div class="data-grid" id="insights">
+              <article class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <h3>Most selected domains</h3>
+                    <p>Roadmap preferences across the platform</p>
+                  </div>
+                </div>
+                <div class="chart-container" id="domainsChart" aria-label="Most selected domains chart">
+                  <p class="empty-state">Analytics will appear when supported data is available.</p>
+                </div>
+              </article>
+
+              <article class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <h3>Task completion</h3>
+                    <p>Completed tasks by day</p>
+                  </div>
+                </div>
+                <div class="chart-container" id="completionChart" aria-label="Task completion trend chart">
+                  <p class="empty-state">Completion history requires timestamped activity records.</p>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <!-- USER DISTRIBUTION -->
+          <section class="dashboard-section" aria-labelledby="distributionHeading">
+            <div class="section-heading section-heading-spaced">
+              <div>
+                <h2 id="distributionHeading">User distribution</h2>
+                <p>Academic year and branch breakdown.</p>
+              </div>
+            </div>
+
+            <div class="data-grid secondary-grid">
+              <article class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <h3>Academic year</h3>
+                    <p>User distribution by year</p>
+                  </div>
+                </div>
+                <div id="academicYearTable" class="table-container">
+                  <p class="empty-state">No academic-year analytics loaded.</p>
+                </div>
+              </article>
+
+              <article class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <h3>Branch distribution</h3>
+                    <p>Registered users by branch</p>
+                  </div>
+                </div>
+                <div id="branchTable" class="table-container">
+                  <p class="empty-state">No branch analytics loaded.</p>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <!-- ACTIVITY TRENDS AND DATA STATUS -->
+          <section class="dashboard-section" id="activity" aria-labelledby="activityHeading">
+            <div class="section-heading section-heading-spaced">
+              <div>
+                <h2 id="activityHeading">Activity trends &amp; data status</h2>
+                <p>Analytics source availability and data readiness.</p>
+              </div>
+            </div>
+
+            <article class="panel activity-panel">
+              <div class="panel-heading">
+                <div>
+                  <h3>Analytics data status</h3>
+                  <p>Metrics are shown only when backed by available records.</p>
+                </div>
+              </div>
+
+              <div id="dataQuality" class="data-quality-list">
+                <p class="empty-state">Checking analytics data sources.</p>
+              </div>
+            </article>
+          </section>
+
+          <p class="privacy-note">
+            Privacy first: this dashboard is intended for aggregate analytics, not individual
+            study records or sensitive personal information.
+          </p>
+        </section>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

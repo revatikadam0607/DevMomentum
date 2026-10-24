@@ -1213,3 +1213,20 @@ body.app-running .floating-demo-btn{ display:none; }
 .user-menu-email{ padding:8px 10px; font-size:.8rem; color: var(--text-muted); border-bottom:1px solid var(--border); margin-bottom:6px; word-break:break-all; }
 .user-menu-signout{ width:100%; text-align:left; padding:8px 10px; border-radius:7px; font-size:.88rem; font-weight:600; color: var(--danger); }
 .user-menu-signout:hover{ background: var(--accent-soft); }
+.admin-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--primary);
+  background: var(--accent-soft);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.admin-nav-btn:hover {
+  background: var(--accent);
+  color: #fff;
+  transform: translateY(-2px);
+}
